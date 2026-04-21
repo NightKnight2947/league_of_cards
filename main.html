@@ -7,11 +7,11 @@
   <style>
     :root {
       --bg: #f7f3ea;
-      --panel: rgba(255, 255, 255, 0.82);
+      --panel: rgba(255, 255, 255, 0.80);
       --panel-strong: rgba(255, 255, 255, 0.94);
       --line: rgba(70, 1, 43, 0.18);
       --text: #111111;
-      --muted: rgba(17, 17, 17, 0.66);
+      --muted: rgba(17, 17, 17, 0.68);
       --title: #46012B;
       --accent: #E38229;
       --soft-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
@@ -114,11 +114,13 @@
 
     .board {
       display: grid;
-      grid-template-columns: minmax(280px, 1fr) minmax(540px, 1.35fr) minmax(280px, 1fr);
-      gap: 18px;
+      grid-template-columns: minmax(210px, 0.78fr) minmax(820px, 2.4fr) minmax(210px, 0.78fr);
+      gap: 16px;
       align-items: stretch;
-      width: min(100%, 1600px);
+      width: min(100%, 1840px);
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
     .panel {
@@ -141,9 +143,9 @@
     }
 
     .team-panel {
-      padding: 18px;
+      padding: 14px;
       display: grid;
-      gap: 14px;
+      gap: 12px;
       align-content: start;
       min-height: 100%;
       transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
@@ -162,7 +164,7 @@
     }
 
     .team-panel h2 {
-      font-size: 1.28rem;
+      font-size: 1.06rem;
       padding: 10px 12px;
       border-radius: 18px;
       border: 2px solid transparent;
@@ -230,14 +232,21 @@
       gap: 10px;
       padding-top: 4px;
       text-align: center;
-      min-height: 190px;
+      min-height: 160px;
+    }
+
+    .team-preview img,
+    .slot-card img,
+    .orga-preview img,
+    .title-image {
+      image-rendering: auto;
     }
 
     .team-preview img {
-      width: min(68%, 220px);
+      width: min(58%, 176px);
       aspect-ratio: 1 / 1;
       object-fit: cover;
-      border-radius: 24px;
+      border-radius: 22px;
       border: 1px solid rgba(70,1,43,0.12);
       background: rgba(255,255,255,0.75);
       box-shadow: var(--soft-shadow);
@@ -248,7 +257,7 @@
     .team-name {
       font-weight: 900;
       color: var(--text);
-      font-size: 1.02rem;
+      font-size: 0.98rem;
     }
 
     .center-control {
@@ -318,38 +327,45 @@
 
     .cards-stage {
       display: grid;
-      gap: 12px;
+      gap: 10px;
       margin-top: 4px;
     }
 
     .cards-stage h3 {
       text-align: center;
-      font-size: 1.1rem;
+      font-size: 1.12rem;
+    }
+
+    .phase-hint {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-top: -2px;
     }
 
     .cards-row {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      align-items: start;
+      gap: 16px;
+      align-items: stretch;
     }
 
     .card-slot {
       display: grid;
-      gap: 10px;
+      gap: 8px;
       align-content: start;
     }
 
     .card-shell {
       position: relative;
       aspect-ratio: 680 / 1024;
-      border-radius: 26px;
+      border-radius: 24px;
       overflow: hidden;
       background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(241,235,224,0.98));
       border: 1px solid rgba(70,1,43,0.16);
       box-shadow: var(--card-shadow);
       transform: translateY(0);
-      transition: transform .2s ease, box-shadow .2s ease;
+      transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
       cursor: pointer;
     }
 
@@ -359,7 +375,7 @@
     }
 
     .card-shell.active {
-      outline: 3px solid rgba(227,130,41,0.9);
+      outline: 3px solid rgba(227,130,41,0.92);
       box-shadow: 0 0 0 5px rgba(227,130,41,0.18), 0 22px 50px rgba(0,0,0,0.22);
       transform: translateY(-4px);
     }
@@ -380,34 +396,6 @@
       pointer-events: none;
     }
 
-    .card-meta {
-      position: absolute;
-      left: 12px;
-      right: 12px;
-      bottom: 10px;
-      display: grid;
-      gap: 8px;
-      z-index: 1;
-    }
-
-    .card-name {
-      color: #fff;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.7);
-      font-weight: 900;
-      font-size: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .reroll-tag {
-      font-size: .75rem;
-      background: rgba(255,255,255,0.18);
-      padding: 4px 8px;
-      border-radius: 999px;
-    }
-
     .card-actions {
       display: grid;
       gap: 8px;
@@ -420,6 +408,11 @@
       border: 1px solid rgba(70,1,43,0.18);
       padding: 12px 12px;
       box-shadow: 0 7px 18px rgba(0,0,0,0.08);
+    }
+
+    .card-action-btn.primary {
+      background: linear-gradient(180deg, #f5a655, #e38229);
+      color: #fff;
     }
 
     .team-slot-row {
@@ -444,7 +437,8 @@
 
     .team-slot {
       position: relative;
-      min-height: 198px;
+      width: 100%;
+      aspect-ratio: 680 / 1024;
       border: 2px dashed rgba(70,1,43,0.28);
       border-radius: 24px;
       background: rgba(255,255,255,0.72);
@@ -452,7 +446,6 @@
       display: grid;
       place-items: center;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
-      cursor: pointer;
       transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
     }
 
@@ -467,30 +460,22 @@
       background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(250,245,237,0.84));
     }
 
-    .slot-placeholder {
-      color: rgba(17,17,17,0.35);
-      font-weight: 800;
-      text-align: center;
-      padding: 16px;
-      font-size: 0.9rem;
-    }
-
     .slot-card {
       position: absolute;
-      width: 74%;
+      width: 72%;
       aspect-ratio: 680 / 1024;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 10px 26px rgba(0,0,0,0.18);
       background: #fff;
       border: 1px solid rgba(70,1,43,0.12);
-      transform: translateY(0) scale(var(--slot-scale));
+      transform: translateY(0) scale(var(--slot-scale, 1));
       transition: transform .25s ease, opacity .25s ease, left .25s ease, top .25s ease;
       cursor: pointer;
     }
 
     .slot-card:hover {
-      transform: translateY(-3px) scale(calc(var(--slot-scale) * 1.02));
+      transform: translateY(-3px) scale(calc(var(--slot-scale, 1) * 1.02));
     }
 
     .slot-card img {
@@ -503,33 +488,18 @@
 
     .slot-card.main {
       z-index: 2;
-      top: 14px;
+      top: 16px;
       left: 50%;
       transform: translateX(-50%) scale(var(--slot-scale));
     }
 
     .slot-card.second {
       z-index: 1;
-      top: 28px;
+      top: 34px;
       left: 50%;
-      transform: translateX(calc(-50% + 22px)) translateY(20px) scale(calc(var(--slot-scale) * .84));
+      transform: translateX(calc(-50% + 30px)) translateY(24px) scale(calc(var(--slot-scale) * .84));
       opacity: 0.86;
       filter: saturate(0.95);
-    }
-
-    .slot-badge {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      z-index: 3;
-      background: rgba(70,1,43,0.92);
-      color: #fff;
-      border-radius: 999px;
-      padding: 5px 10px;
-      font-size: .76rem;
-      font-weight: 900;
-      letter-spacing: 0.04em;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.16);
     }
 
     .orga-bar {
@@ -538,9 +508,7 @@
       margin-top: 10px;
     }
 
-    .orga-bar.active {
-      display: grid;
-    }
+    .orga-bar.active { display: grid; }
 
     .orga-grid {
       display: grid;
@@ -563,7 +531,7 @@
     .orga-preview img {
       width: min(100%, 180px);
       height: auto;
-      max-height: 160px;
+      max-height: 150px;
       object-fit: contain;
       border-radius: 12px;
       transform: scale(var(--orga-preview-scale));
@@ -581,6 +549,12 @@
       border: 1px solid rgba(70,1,43,0.16);
       padding: 10px 12px;
       box-shadow: 0 7px 16px rgba(0,0,0,0.07);
+    }
+
+    .helper {
+      font-size: .88rem;
+      color: var(--muted);
+      line-height: 1.35;
     }
 
     .overlay-preview {
@@ -670,8 +644,8 @@
         <div class="slot-wrap">
           <div class="slot-title">Karten-Slots Team 1</div>
           <div class="team-slot-row">
-            <div class="team-slot" id="slot1a"><div class="slot-placeholder">Slot 1 leer</div></div>
-            <div class="team-slot" id="slot1b"><div class="slot-placeholder">Slot 2 leer</div></div>
+            <div class="team-slot" id="slot1a"></div>
+            <div class="team-slot" id="slot1b"></div>
           </div>
         </div>
       </aside>
@@ -687,12 +661,12 @@
           <div class="select-block">
             <div class="label">Phasen-Auswahl</div>
             <select id="matchMode" class="phase-select">
-              <option value="first">Beide Teams spielen ihr erstes Match</option>
-              <option value="loser">Verliererteam auswählen (+1 Karte)</option>
+              <option value="first">Das ist das erste Match beider Teams</option>
+              <option value="loser">Verliererteam aus vergangener Runde auswählen (+1 Karte)</option>
             </select>
           </div>
           <div class="select-block" id="loserWrap" style="display:none;">
-            <div class="label">Verliererteam</div>
+            <div class="label">Verliererteam auswählen</div>
             <select id="loserTeam" class="phase-select">
               <option value="team1">Team 1</option>
               <option value="team2">Team 2</option>
@@ -701,9 +675,11 @@
           <button id="confirmModeBtn" class="ghost-btn">Auswahl bestätigen</button>
         </div>
 
-        <div class="cards-stage subcard">
+        <div class="subcard cards-stage">
           <h3>Kartenphase</h3>
+          <div class="phase-hint">(Doppelklick um Karte zu vergrößern)</div>
           <div class="cards-row" id="cardsRow"></div>
+          <button id="pickCardBtn" class="card-action-btn primary" disabled>Karte auswählen</button>
         </div>
 
         <div class="subcard orga-bar" id="orgaBar">
@@ -712,7 +688,7 @@
             <div class="select-block">
               <div class="label">Karte auswählen</div>
               <select id="orgaCardSelect" class="manual-select"></select>
-              <div class="orga-preview" id="orgaPreview"><img id="orgaPreviewImg" alt="Kartenvorschau" /></div>
+              <div class="orga-preview"><img id="orgaPreviewImg" alt="Kartenvorschau" /></div>
             </div>
             <div class="orga-actions">
               <div class="select-block">
@@ -741,8 +717,8 @@
         <div class="slot-wrap">
           <div class="slot-title">Karten-Slots Team 2</div>
           <div class="team-slot-row">
-            <div class="team-slot" id="slot2a"><div class="slot-placeholder">Slot 1 leer</div></div>
-            <div class="team-slot" id="slot2b"><div class="slot-placeholder">Slot 2 leer</div></div>
+            <div class="team-slot" id="slot2a"></div>
+            <div class="team-slot" id="slot2b"></div>
           </div>
         </div>
       </aside>
@@ -751,7 +727,7 @@
 
   <script>
     const REPO = { owner: 'NightKnight2947', name: 'league_of_cards' };
-    const SCALE = { title: 100, bg: 100, team: 100, card: 100, slot: 100, slotCard: 100, hoverPreview: 100, orgaPreview: 100 };
+    const SCALE = { title: 100, team: 100, card: 100, slot: 100, slotCard: 100, hoverPreview: 100, orgaPreview: 100 };
 
     const state = {
       branch: 'main',
@@ -759,19 +735,18 @@
       team1: null,
       team2: null,
       phaseActive: false,
+      phaseFinished: false,
+      currentTurn: 'team1',
       phaseState: 'idle',
-      currentTurn: null,
       currentBatch: [],
       selectedCards: new Set(),
       teamCards: { team1: [], team2: [] },
-      activeCardIndex: 0,
       orgaMode: false,
+      activeCardIndex: null,
       hoverTimer: null,
       overlayVisible: false,
-      chooseModeShown: false,
       bonusTarget: null,
-      modeChoice: null,
-      cardSound: null
+      rerollUsed: [false, false, false]
     };
 
     const els = {};
@@ -813,9 +788,17 @@
       return await res.json();
     }
 
-    function pathLooksLikeCard(path) { return /(^|\/)\d+\.png$/i.test(path); }
-    function pathLooksLikeTeam(path) { return /(^|\/)team_[^/]+\.png$/i.test(path); }
-    function sortCards(files) { return files.slice().sort((a, b) => parseInt(cardIdFromFilename(a), 10) - parseInt(cardIdFromFilename(b), 10)); }
+    function pathLooksLikeCard(path) {
+      return /(^|\/)\d+\.png$/i.test(path);
+    }
+
+    function pathLooksLikeTeam(path) {
+      return /(^|\/)team_[^/]+\.png$/i.test(path);
+    }
+
+    function sortCards(files) {
+      return files.slice().sort((a, b) => parseInt(cardIdFromFilename(a), 10) - parseInt(cardIdFromFilename(b), 10));
+    }
 
     async function loadAssetsFromRepo() {
       const repoInfo = await fetchJson(`https://api.github.com/repos/${REPO.owner}/${REPO.name}`);
@@ -836,6 +819,20 @@
         teams: teamFiles.map((file) => ({ file, name: teamLabelFromFilename(file), url: repoUrl(file) })),
         cards: cardFiles.map((file) => ({ file, id: cardIdFromFilename(file), url: repoUrl(file) }))
       };
+    }
+
+    function fallbackAssetsMessage() {
+      const missing = [];
+      if (!state.assets.title) missing.push('title.png');
+      if (!state.assets.bg) missing.push('bg.png');
+      if (!state.assets.cardAudio) missing.push('card.mp3');
+      if (!state.assets.teams.length) missing.push('team_*.png');
+      if (!state.assets.cards.length) missing.push('1.png, 2.png, ...');
+      if (missing.length) {
+        setWarning(`Im Repo wurden aktuell keine Assets gefunden oder das Repo ist leer. Erwartet werden: ${missing.join(', ')}.`);
+      } else {
+        setWarning('');
+      }
     }
 
     function availableCards() {
@@ -892,81 +889,78 @@
       img.style.setProperty('--team-scale', `${SCALE.team / 100}`);
     }
 
-    function renderTeamSlots() {
-      const renderSlot = (slotEl, card, label) => {
-        slotEl.innerHTML = '';
-        slotEl.classList.toggle('filled', !!card);
-        if (!card) {
-          slotEl.innerHTML = '';
-          return;
-        }
-        const main = document.createElement('div');
-        main.className = 'slot-card main';
-        main.innerHTML = `<img src="${card.url}" alt="${card.id}" loading="lazy" />`;
-        main.addEventListener('dblclick', () => openPreview(card.url));
-        slotEl.appendChild(main);
-        const badge = document.createElement('div');
-        badge.className = 'slot-badge';
-        badge.textContent = label;
-        slotEl.appendChild(badge);
-      };
+    function syncTeamSelection() {
+      const t1Idx = parseInt(els.teamSelect1.value, 10);
+      const t2Idx = parseInt(els.teamSelect2.value, 10);
+      state.team1 = Number.isInteger(t1Idx) ? state.assets.teams[t1Idx] : null;
+      state.team2 = Number.isInteger(t2Idx) ? state.assets.teams[t2Idx] : null;
+      renderTeamPreview(1, state.team1);
+      renderTeamPreview(2, state.team2);
+    }
 
+    function renderSlots() {
       renderSlot(els.slot1a, state.teamCards.team1[0] || null, '1');
       renderSlot(els.slot1b, state.teamCards.team1[1] || null, '2');
       renderSlot(els.slot2a, state.teamCards.team2[0] || null, '1');
       renderSlot(els.slot2b, state.teamCards.team2[1] || null, '2');
     }
 
-    function renderTeamHighlights() {
-      els.teamPanel1.classList.toggle('active-turn', state.phaseActive && state.currentTurn === 'team1');
-      els.teamPanel2.classList.toggle('active-turn', state.phaseActive && state.currentTurn === 'team2');
+    function renderSlot(slotEl, card, label) {
+      slotEl.innerHTML = '';
+      slotEl.classList.toggle('filled', !!card);
+      if (!card) return;
+      const main = document.createElement('div');
+      main.className = 'slot-card main';
+      main.innerHTML = `<img src="${card.url}" alt="${card.id}" loading="lazy" />`;
+      main.addEventListener('dblclick', () => openPreview(card.url));
+      slotEl.appendChild(main);
+      const badge = document.createElement('div');
+      badge.className = 'slot-badge';
+      badge.textContent = label;
+      slotEl.appendChild(badge);
+    }
+
+    function updateSelectButtonState() {
+      els.pickCardBtn.disabled = !(state.phaseActive && state.currentBatch.length > 0 && state.activeCardIndex != null);
     }
 
     function renderCurrentCards() {
       els.cardsRow.innerHTML = '';
-      if (!state.currentBatch.length) return;
+      if (state.activeCardIndex != null && state.activeCardIndex >= state.currentBatch.length) {
+        state.activeCardIndex = null;
+      }
+      if (!state.currentBatch.length) {
+        updateSelectButtonState();
+        return;
+      }
 
       state.currentBatch.forEach((card, idx) => {
         const slot = document.createElement('div');
         slot.className = 'card-slot';
         slot.innerHTML = `
-          <div class="card-shell ${idx === state.activeCardIndex ? 'active' : ''}" data-idx="${idx}">
+          <div class="card-shell ${idx === state.activeCardIndex ? 'active' : ''}">
             <img src="${card.url}" alt="Karte ${card.id}" loading="lazy" />
             <div class="card-overlay"></div>
-            <div class="card-meta">
-              <div class="card-name">
-                <span>Karte ${card.id}</span>
-                <span class="reroll-tag">${card.rerolled ? 'Re-Roll genutzt' : 'bereit'}</span>
-              </div>
-            </div>
           </div>
           <div class="card-actions">
-            <button class="card-action-btn select-btn" data-select="${idx}">Karte auswählen</button>
             <button class="card-action-btn reroll-btn" data-reroll="${idx}" ${card.rerolled ? 'disabled' : ''}>Re-Roll</button>
           </div>
         `;
         const shell = slot.querySelector('.card-shell');
+        shell.addEventListener('click', () => {
+          state.activeCardIndex = idx;
+          highlightCurrentCard();
+          updateSelectButtonState();
+        });
         shell.addEventListener('dblclick', () => openPreview(card.url));
-        shell.addEventListener('click', () => { state.activeCardIndex = idx; highlightCurrentCard(); });
-        slot.querySelector('.select-btn').addEventListener('click', () => selectCurrentCard(idx));
         slot.querySelector('.reroll-btn').addEventListener('click', () => rerollCard(idx));
         els.cardsRow.appendChild(slot);
       });
+      updateSelectButtonState();
     }
 
     function highlightCurrentCard() {
       els.cardsRow.querySelectorAll('.card-shell').forEach((shell, idx) => shell.classList.toggle('active', idx === state.activeCardIndex));
-    }
-
-    function assignCardToTeam(teamKey, card) {
-      const slots = state.teamCards[teamKey];
-      const idx = slots.length < 2 ? slots.length : -1;
-      if (idx === -1) return false;
-      slots[idx] = card;
-      state.selectedCards.add(card.id);
-      renderTeamSlots();
-      playCardSound();
-      return true;
     }
 
     function drawTriple() {
@@ -986,79 +980,110 @@
         next.push({ ...pick, rerolled: false });
       }
       state.currentBatch = next;
-      state.activeCardIndex = 0;
+      state.activeCardIndex = null;
+      state.rerollUsed = [false, false, false];
       renderCurrentCards();
+      setStatus(state.currentTurn === 'team1' ? 'Team 1 ist am Zug.' : 'Team 2 ist am Zug.', true);
       return true;
     }
 
-    function beginTurn(teamKey, message) {
-      state.currentTurn = teamKey;
-      renderTeamHighlights();
-      setStatus(message, true);
-      drawTriple();
+    function assignCardToTeam(teamKey, card) {
+      const slots = state.teamCards[teamKey];
+      if (slots.length >= 2) return false;
+      slots.push(card);
+      state.selectedCards.add(card.id);
+      renderSlots();
+      playCardSound();
+      return true;
     }
 
-    function showModeSelection() {
-      state.chooseModeShown = true;
-      state.currentTurn = null;
-      renderTeamHighlights();
-      els.phaseControls.classList.add('active');
-      updatePhaseUi();
-      setStatus('Beide Teams haben ihre erste Karte. Bitte Modus wählen.', true);
-    }
-
-    function finishPhase(text) {
-      state.phaseActive = false;
-      state.currentTurn = null;
+    function beginPhase() {
+      state.phaseActive = true;
+      state.phaseFinished = false;
+      state.currentTurn = 'team1';
+      state.phaseState = 'base1';
       state.currentBatch = [];
-      state.chooseModeShown = false;
+      state.selectedCards = new Set();
+      state.teamCards = { team1: [], team2: [] };
+      state.activeCardIndex = null;
+      state.bonusTarget = null;
+      els.startPhaseBtn.textContent = 'Restart Card Phase';
+      els.phaseControls.classList.remove('active');
+      els.orgaBar.classList.remove('active');
+      renderSlots();
+      renderCurrentCards();
+      setStatus('Kartenphase begonnen. Team 1 ist am Zug.', true);
+      drawTriple();
+      renderTeamHighlights();
+    }
+
+    function finishPhase(message) {
+      state.phaseActive = false;
+      state.phaseFinished = true;
+      state.currentBatch = [];
+      state.activeCardIndex = null;
       state.bonusTarget = null;
       renderCurrentCards();
-      renderTeamHighlights();
+      updateSelectButtonState();
       els.phaseControls.classList.remove('active');
-      setStatus(text || 'Card Phase abgeschlossen. Restart bereit.');
+      setStatus(message || 'Card Phase abgeschlossen. Restart bereit.');
+      renderTeamHighlights();
     }
 
-    function selectCurrentCard(index) {
-      if (!state.phaseActive || !state.currentBatch[index] || !state.currentTurn) return;
-      const card = state.currentBatch[index];
+    function renderTeamHighlights() {
+      els.teamPanel1.classList.toggle('active-turn', state.phaseActive && state.currentTurn === 'team1');
+      els.teamPanel2.classList.toggle('active-turn', state.phaseActive && state.currentTurn === 'team2');
+    }
+
+    function selectCurrentCard() {
+      if (!state.phaseActive || state.activeCardIndex == null || !state.currentBatch[state.activeCardIndex]) return;
+      const card = state.currentBatch[state.activeCardIndex];
       const teamKey = state.currentTurn;
+
       if (!assignCardToTeam(teamKey, card)) {
         setStatus(`${teamKey === 'team1' ? 'Team 1' : 'Team 2'} hat bereits beide Slots voll.`, true);
         return;
       }
+
       state.currentBatch = [];
+      state.activeCardIndex = null;
       renderCurrentCards();
-      renderTeamSlots();
+      renderSlots();
 
-      if (!state.chooseModeShown) {
-        if (state.phaseState === 'base1') {
-          state.phaseState = 'base2';
-          beginTurn('team2', 'Team 2 ist am Zug.');
-          return;
-        }
+      if (state.phaseState === 'base1') {
+        state.phaseState = 'base2';
+        state.currentTurn = 'team2';
+        setStatus('Team 2 ist am Zug.', true);
+        drawTriple();
+        renderTeamHighlights();
+        return;
+      }
 
-        if (state.phaseState === 'base2') {
-          state.phaseState = 'choose';
-          showModeSelection();
-          return;
-        }
+      if (state.phaseState === 'base2') {
+        state.phaseState = 'choose';
+        state.currentTurn = null;
+        els.phaseControls.classList.add('active');
+        setStatus('Beide Teams haben ihre erste Karte. Bitte Modus wählen.', true);
+        renderTeamHighlights();
+        return;
+      }
 
-        if (state.phaseState === 'first_second1') {
-          state.phaseState = 'first_second2';
-          beginTurn('team2', 'Team 2 zieht die zweite Karte.');
-          return;
-        }
+      if (state.phaseState === 'first_second1') {
+        state.phaseState = 'first_second2';
+        state.currentTurn = 'team2';
+        setStatus('Team 2 zieht die zweite Karte.', true);
+        drawTriple();
+        renderTeamHighlights();
+        return;
+      }
 
-        if (state.phaseState === 'first_second2') {
-          finishPhase('Beide Teams haben ihre zweite Karte. Card Phase abgeschlossen.');
-          return;
-        }
+      if (state.phaseState === 'first_second2') {
+        finishPhase('Beide Teams haben ihre zweite Karte. Card Phase abgeschlossen.');
+        return;
+      }
 
-        if (state.phaseState === 'bonus') {
-          finishPhase('Bonuskarte vergeben. Card Phase abgeschlossen.');
-          return;
-        }
+      if (state.phaseState === 'bonus') {
+        finishPhase('Bonuskarte vergeben. Card Phase abgeschlossen.');
       }
     }
 
@@ -1075,50 +1100,30 @@
       setStatus('Re-Roll ausgeführt.', true);
     }
 
+    function updatePhaseModeUi() {
+      els.loserWrap.style.display = els.matchMode.value === 'loser' ? 'grid' : 'none';
+    }
+
     function confirmModeSelection() {
       if (!state.phaseActive) return;
       const mode = els.matchMode.value;
-      state.chooseModeShown = false;
       els.phaseControls.classList.remove('active');
 
       if (mode === 'first') {
         state.phaseState = 'first_second1';
         state.currentTurn = 'team1';
-        beginTurn('team1', 'Beide Teams spielen ihr erstes Match. Team 1 zieht die zweite Karte.');
+        setStatus('Beide Teams spielen ihr erstes Match. Team 1 zieht die zweite Karte.', true);
+        drawTriple();
+        renderTeamHighlights();
         return;
       }
 
       state.phaseState = 'bonus';
       state.bonusTarget = els.loserTeam.value;
       state.currentTurn = state.bonusTarget;
-      beginTurn(state.bonusTarget, `${state.bonusTarget === 'team1' ? 'Team 1' : 'Team 2'} bekommt die Bonuskarte.`);
-    }
-
-    function syncTeamSelection() {
-      const t1Idx = parseInt(els.teamSelect1.value, 10);
-      const t2Idx = parseInt(els.teamSelect2.value, 10);
-      state.team1 = Number.isInteger(t1Idx) ? state.assets.teams[t1Idx] : null;
-      state.team2 = Number.isInteger(t2Idx) ? state.assets.teams[t2Idx] : null;
-      renderTeamPreview(1, state.team1);
-      renderTeamPreview(2, state.team2);
-    }
-
-    function buildTeamOptions() {
-      const options = state.assets.teams.map((team, idx) => `<option value="${idx}">${team.name}</option>`).join('');
-      els.teamSelect1.innerHTML = `<option value="">Team wählen</option>${options}`;
-      els.teamSelect2.innerHTML = `<option value="">Team wählen</option>${options}`;
-      if (state.assets.teams[0]) els.teamSelect1.value = '0';
-      if (state.assets.teams[1]) els.teamSelect2.value = '1';
-      else if (state.assets.teams[0]) els.teamSelect2.value = '0';
-      syncTeamSelection();
-    }
-
-    function buildOrgaOptions() {
-      els.orgaCardSelect.innerHTML = state.assets.cards.map((card, idx) => `<option value="${idx}">${card.id}</option>`).join('');
-      if (state.assets.cards[0]) {
-        els.orgaCardSelect.value = '0';
-        updateOrgaPreview();
-      }
+      setStatus(`${state.bonusTarget === 'team1' ? 'Team 1' : 'Team 2'} bekommt die Bonuskarte.`, true);
+      drawTriple();
+      renderTeamHighlights();
     }
 
     function updateOrgaPreview() {
@@ -1160,98 +1165,53 @@
       }
       state.teamCards[teamKey].push(card);
       state.selectedCards.add(card.id);
-      renderTeamSlots();
+      renderSlots();
       playCardSound();
       refreshOrgaDropdown();
       setStatus(`${card.id} wurde ${teamKey === 'team1' ? 'Team 1' : 'Team 2'} zugewiesen.`);
     }
 
-    function clearSlots() {
-      state.teamCards = { team1: [], team2: [] };
-      state.selectedCards = new Set();
-      renderTeamSlots();
-      refreshOrgaDropdown();
-    }
-
-    function renderInitialCards() {
-      els.cardsRow.innerHTML = '';
-    }
-
-    function fallbackAssetsMessage() {
-      const missing = [];
-      if (!state.assets.title) missing.push('title.png');
-      if (!state.assets.bg) missing.push('bg.png');
-      if (!state.assets.cardAudio) missing.push('card.mp3');
-      if (!state.assets.teams.length) missing.push('team_*.png');
-      if (!state.assets.cards.length) missing.push('1.png, 2.png, ...');
-      if (missing.length) {
-        setWarning(`Im Repo wurden aktuell keine Assets gefunden oder das Repo ist leer. Erwartet werden: ${missing.join(', ')}.`);
+    function toggleOrgaMode() {
+      state.orgaMode = !state.orgaMode;
+      els.orgaBar.classList.toggle('active', state.orgaMode);
+      if (state.orgaMode) {
+        els.orgaToggleBtn.textContent = 'Orga-Mode schließen';
+        setStatus('Orga-Mode aktiv. Karten manuell zuweisen.', true);
+        refreshOrgaDropdown();
       } else {
-        setWarning('');
+        els.orgaToggleBtn.textContent = 'Orga-Mode';
+        setStatus(state.phaseActive ? 'Card Phase läuft weiter.' : 'Orga-Mode beendet.');
       }
     }
 
-    function updatePhaseUi() {
-      const mode = els.matchMode.value;
-      els.loserWrap.style.display = mode === 'loser' ? 'grid' : 'none';
+    function clearSlots() {
+      state.teamCards = { team1: [], team2: [] };
+      state.selectedCards = new Set();
+      renderSlots();
+      refreshOrgaDropdown();
     }
 
-    function resetPhase() {
+    function resetAll() {
       state.phaseActive = false;
+      state.phaseFinished = false;
+      state.currentTurn = 'team1';
       state.phaseState = 'idle';
-      state.currentTurn = null;
       state.currentBatch = [];
       state.selectedCards = new Set();
       state.teamCards = { team1: [], team2: [] };
-      state.activeCardIndex = 0;
       state.orgaMode = false;
-      state.chooseModeShown = false;
+      state.activeCardIndex = null;
       state.bonusTarget = null;
-      state.modeChoice = null;
       els.orgaBar.classList.remove('active');
       els.orgaToggleBtn.textContent = 'Orga-Mode';
       els.phaseControls.classList.remove('active');
-      els.startPhaseBtn.textContent = 'Start Card Phase';
-      renderInitialCards();
-      renderTeamSlots();
+      renderCurrentCards();
+      renderSlots();
       renderTeamHighlights();
       setStatus('Bereit. Teams wählen und Card Phase starten.');
     }
 
-    function bindEvents() {
-      els.teamSelect1.addEventListener('change', syncTeamSelection);
-      els.teamSelect2.addEventListener('change', syncTeamSelection);
-      els.startPhaseBtn.addEventListener('click', () => {
-        resetPhase();
-        state.phaseActive = true;
-        state.phaseState = 'base1';
-        els.startPhaseBtn.textContent = 'Restart Card Phase';
-        beginTurn('team1', 'Kartenphase begonnen. Team 1 ist am Zug.');
-      });
-      els.orgaToggleBtn.addEventListener('click', () => {
-        state.orgaMode = !state.orgaMode;
-        els.orgaBar.classList.toggle('active', state.orgaMode);
-        if (state.orgaMode) {
-          els.orgaToggleBtn.textContent = 'Orga-Mode schließen';
-          setStatus('Orga-Mode aktiv. Karten manuell zuweisen.', true);
-          clearSlots();
-          refreshOrgaDropdown();
-        } else {
-          els.orgaToggleBtn.textContent = 'Orga-Mode';
-          setStatus(state.phaseActive ? 'Card Phase läuft weiter.' : 'Orga-Mode beendet.');
-        }
-      });
-      els.matchMode.addEventListener('change', updatePhaseUi);
-      els.confirmModeBtn.addEventListener('click', confirmModeSelection);
-      els.orgaCardSelect.addEventListener('change', updateOrgaPreview);
-      els.assignCardBtn.addEventListener('click', assignManualCard);
-      els.clearSlotsBtn.addEventListener('click', () => {
-        clearSlots();
-        setStatus('Kartenslots wurden geleert.');
-      });
-    }
-
-    async function init() {
+    function initDom() {
       els.titleImage = byId('titleImage');
       els.assetWarning = byId('assetWarning');
       els.teamSelect1 = byId('teamSelect1');
@@ -1273,6 +1233,7 @@
       els.loserTeam = byId('loserTeam');
       els.confirmModeBtn = byId('confirmModeBtn');
       els.cardsRow = byId('cardsRow');
+      els.pickCardBtn = byId('pickCardBtn');
       els.orgaBar = byId('orgaBar');
       els.orgaCardSelect = byId('orgaCardSelect');
       els.orgaTeamSelect = byId('orgaTeamSelect');
@@ -1281,7 +1242,55 @@
       els.clearSlotsBtn = byId('clearSlotsBtn');
       els.overlayPreview = byId('overlayPreview');
       els.overlayPreviewImg = byId('overlayPreviewImg');
+    }
 
+    function bindEvents() {
+      els.teamSelect1.addEventListener('change', syncTeamSelection);
+      els.teamSelect2.addEventListener('change', syncTeamSelection);
+
+      els.startPhaseBtn.addEventListener('click', () => {
+        resetAll();
+        beginPhase();
+      });
+
+      els.pickCardBtn.addEventListener('click', selectCurrentCard);
+
+      els.orgaToggleBtn.addEventListener('click', toggleOrgaMode);
+      els.matchMode.addEventListener('change', updatePhaseModeUi);
+      els.confirmModeBtn.addEventListener('click', confirmModeSelection);
+      els.orgaCardSelect.addEventListener('change', updateOrgaPreview);
+      els.assignCardBtn.addEventListener('click', assignManualCard);
+      els.clearSlotsBtn.addEventListener('click', () => {
+        clearSlots();
+        setStatus('Kartenslots wurden geleert.');
+      });
+
+      window.addEventListener('mousemove', () => { if (state.overlayVisible) hidePreviewSoon(); }, { passive: true });
+      window.addEventListener('mousedown', () => { if (state.overlayVisible) hidePreviewSoon(); }, { passive: true });
+      window.addEventListener('touchstart', () => { if (state.overlayVisible) hidePreviewSoon(); }, { passive: true });
+      window.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePreviewSoon(); });
+    }
+
+    function buildTeamOptions() {
+      const options = state.assets.teams.map((team, idx) => `<option value="${idx}">${team.name}</option>`).join('');
+      els.teamSelect1.innerHTML = `<option value="">Team wählen</option>${options}`;
+      els.teamSelect2.innerHTML = `<option value="">Team wählen</option>${options}`;
+      if (state.assets.teams[0]) els.teamSelect1.value = '0';
+      if (state.assets.teams[1]) els.teamSelect2.value = '1';
+      else if (state.assets.teams[0]) els.teamSelect2.value = '0';
+      syncTeamSelection();
+    }
+
+    function buildOrgaOptions() {
+      els.orgaCardSelect.innerHTML = state.assets.cards.map((card, idx) => `<option value="${idx}">${card.id}</option>`).join('');
+      if (state.assets.cards[0]) {
+        els.orgaCardSelect.value = '0';
+        updateOrgaPreview();
+      }
+    }
+
+    async function init() {
+      initDom();
       applyScales();
       bindEvents();
       bindPreviewHide();
@@ -1312,9 +1321,9 @@
       if (state.assets.cards.length) buildOrgaOptions();
       else els.orgaCardSelect.innerHTML = '<option value="">Keine Karten gefunden</option>';
 
-      renderTeamSlots();
-      renderInitialCards();
-      updatePhaseUi();
+      renderSlots();
+      renderCurrentCards();
+      updatePhaseModeUi();
       renderTeamHighlights();
       setStatus('Bereit. Teams wählen und Card Phase starten.');
 
