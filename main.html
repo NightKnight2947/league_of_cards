@@ -7,23 +7,24 @@
   <style>
     :root {
       --bg: #f7f3ea;
-      --panel: rgba(255, 255, 255, 0.78);
-      --panel-strong: rgba(255, 255, 255, 0.92);
+      --panel: rgba(255, 255, 255, 0.82);
+      --panel-strong: rgba(255, 255, 255, 0.94);
       --line: rgba(70, 1, 43, 0.18);
       --text: #111111;
-      --muted: rgba(17, 17, 17, 0.68);
+      --muted: rgba(17, 17, 17, 0.66);
       --title: #46012B;
       --accent: #E38229;
-      --accent-deep: #c96a14;
+      --soft-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
       --card-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
-      --soft-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       --radius: 28px;
-      --radius-sm: 18px;
-      --line-grad: linear-gradient(135deg, rgba(227,130,41,.45), rgba(70,1,43,.18));
-      --slot-size: min(17vw, 240px);
-      --team-card-size: min(12vw, 170px);
-      --card-ratio: 680 / 1024;
-      --preview-scale: 1;
+      --bg-opacity: 0.16;
+      --title-scale: 1;
+      --team-scale: 1;
+      --card-scale: 1;
+      --slot-scale: 1;
+      --slot-card-scale: 1;
+      --hover-preview-scale: 1;
+      --orga-preview-scale: 1;
     }
 
     * { box-sizing: border-box; }
@@ -45,8 +46,8 @@
       background-image: var(--bg-image, none);
       background-repeat: repeat;
       background-size: auto;
-      opacity: 0.16;
-      filter: saturate(0.9) contrast(1.03);
+      opacity: var(--bg-opacity);
+      filter: saturate(0.92) contrast(1.04);
       animation: bgDrift 42s linear infinite;
       pointer-events: none;
       z-index: -2;
@@ -69,7 +70,7 @@
     .app {
       min-height: 100vh;
       display: grid;
-      grid-template-rows: auto auto 1fr;
+      grid-template-rows: auto 1fr;
       gap: 18px;
       padding: 18px;
     }
@@ -96,7 +97,7 @@
       display: block;
       object-fit: contain;
       filter: drop-shadow(0 10px 24px rgba(0,0,0,0.18));
-      transform: scale(var(--title-scale, 1));
+      transform: scale(var(--title-scale));
       transform-origin: center;
     }
 
@@ -113,13 +114,11 @@
 
     .board {
       display: grid;
-      grid-template-columns: minmax(260px, 1fr) minmax(520px, 1.3fr) minmax(260px, 1fr);
+      grid-template-columns: minmax(280px, 1fr) minmax(540px, 1.35fr) minmax(280px, 1fr);
       gap: 18px;
       align-items: stretch;
       width: min(100%, 1600px);
       margin: 0 auto;
-      position: relative;
-      z-index: 1;
     }
 
     .panel {
@@ -147,16 +146,33 @@
       gap: 14px;
       align-content: start;
       min-height: 100%;
+      transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
     }
 
-    .team-panel h2, .center-panel h2, .center-panel h3 {
+    .team-panel.active-turn {
+      border-color: rgba(227,130,41,0.72);
+      box-shadow: 0 0 0 4px rgba(227,130,41,0.12), var(--soft-shadow);
+      transform: translateY(-1px);
+    }
+
+    .team-panel h2, .center-panel h3 {
       margin: 0;
       color: var(--title);
       letter-spacing: 0.02em;
     }
 
     .team-panel h2 {
-      font-size: 1.25rem;
+      font-size: 1.28rem;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 2px solid transparent;
+      background: rgba(255,255,255,0.38);
+      transition: border-color .18s ease, background .18s ease;
+    }
+
+    .team-panel.active-turn h2 {
+      border-color: rgba(227,130,41,0.86);
+      background: rgba(255,255,255,0.78);
     }
 
     .center-panel {
@@ -174,7 +190,7 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
     }
 
-    .select-row {
+    .select-row, .select-block {
       display: grid;
       gap: 10px;
     }
@@ -187,13 +203,9 @@
       color: var(--title);
     }
 
-    select, button, input {
-      font: inherit;
-    }
+    select, button, input { font: inherit; }
 
-    .team-select,
-    .phase-select,
-    .manual-select {
+    .team-select, .phase-select, .manual-select {
       width: 100%;
       appearance: none;
       border: 1px solid rgba(70,1,43,0.18);
@@ -206,9 +218,7 @@
       transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
     }
 
-    .team-select:hover,
-    .phase-select:hover,
-    .manual-select:hover {
+    .team-select:hover, .phase-select:hover, .manual-select:hover {
       transform: translateY(-1px);
       border-color: rgba(227,130,41,0.56);
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
@@ -223,16 +233,6 @@
       min-height: 190px;
     }
 
-    .team-preview img,
-    .team-mini img,
-    .card-img,
-    .slot-card img,
-    .orga-preview img,
-    .hover-preview img,
-    .title-image {
-      image-rendering: auto;
-    }
-
     .team-preview img {
       width: min(68%, 220px);
       aspect-ratio: 1 / 1;
@@ -241,7 +241,7 @@
       border: 1px solid rgba(70,1,43,0.12);
       background: rgba(255,255,255,0.75);
       box-shadow: var(--soft-shadow);
-      transform: scale(var(--team-scale, 1));
+      transform: scale(var(--team-scale));
       transform-origin: center;
     }
 
@@ -249,45 +249,6 @@
       font-weight: 900;
       color: var(--text);
       font-size: 1.02rem;
-    }
-
-    .versus {
-      margin-top: auto;
-      background: linear-gradient(135deg, rgba(227,130,41,0.18), rgba(70,1,43,0.12));
-      border: 1px solid rgba(70,1,43,0.12);
-      border-radius: 22px;
-      padding: 14px 16px;
-      text-align: center;
-      font-weight: 900;
-      color: var(--text);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
-    }
-
-    .versus .teams {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      font-size: 1rem;
-    }
-
-    .team-mini {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 10px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.5);
-      border: 1px solid rgba(70,1,43,0.12);
-    }
-
-    .team-mini img {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      object-fit: cover;
-      transform: scale(var(--mini-team-scale, 1));
     }
 
     .center-control {
@@ -350,16 +311,10 @@
       display: none;
       gap: 10px;
       width: 100%;
-      grid-template-columns: 1fr;
       justify-items: stretch;
     }
 
     .phase-controls.active { display: grid; }
-
-    .select-block {
-      display: grid;
-      gap: 8px;
-    }
 
     .cards-stage {
       display: grid;
@@ -367,23 +322,35 @@
       margin-top: 4px;
     }
 
+    .cards-stage h3 {
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
     .cards-row {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      align-items: stretch;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .card-slot {
+      display: grid;
+      gap: 10px;
+      align-content: start;
     }
 
     .card-shell {
       position: relative;
-      aspect-ratio: var(--card-ratio);
-      border-radius: 24px;
+      aspect-ratio: 680 / 1024;
+      border-radius: 26px;
       overflow: hidden;
       background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(241,235,224,0.98));
       border: 1px solid rgba(70,1,43,0.16);
       box-shadow: var(--card-shadow);
       transform: translateY(0);
-      transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+      transition: transform .2s ease, box-shadow .2s ease;
+      cursor: pointer;
     }
 
     .card-shell:hover {
@@ -397,20 +364,12 @@
       transform: translateY(-4px);
     }
 
-    .card-shell.empty {
-      display: grid;
-      place-items: center;
-      color: rgba(17,17,17,0.45);
-      font-weight: 800;
-      letter-spacing: 0.04em;
-    }
-
     .card-shell img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
-      transform: scale(var(--card-scale, 1));
+      transform: scale(var(--card-scale));
       transform-origin: center;
     }
 
@@ -449,10 +408,9 @@
       border-radius: 999px;
     }
 
-    .card-buttons {
+    .card-actions {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      gap: 8px;
     }
 
     .card-action-btn {
@@ -464,11 +422,10 @@
       box-shadow: 0 7px 18px rgba(0,0,0,0.08);
     }
 
-    .footer-row {
+    .team-slot-row {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
-      align-items: start;
     }
 
     .slot-wrap {
@@ -487,7 +444,7 @@
 
     .team-slot {
       position: relative;
-      min-height: 280px;
+      min-height: 198px;
       border: 2px dashed rgba(70,1,43,0.28);
       border-radius: 24px;
       background: rgba(255,255,255,0.72);
@@ -495,6 +452,14 @@
       display: grid;
       place-items: center;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .team-slot:hover {
+      transform: translateY(-2px);
+      border-color: rgba(227,130,41,0.55);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.1);
     }
 
     .team-slot.filled {
@@ -503,23 +468,29 @@
     }
 
     .slot-placeholder {
-      color: rgba(17,17,17,0.4);
+      color: rgba(17,17,17,0.35);
       font-weight: 800;
       text-align: center;
       padding: 16px;
+      font-size: 0.9rem;
     }
 
     .slot-card {
       position: absolute;
-      width: 70%;
-      aspect-ratio: var(--card-ratio);
+      width: 74%;
+      aspect-ratio: 680 / 1024;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 10px 26px rgba(0,0,0,0.18);
       background: #fff;
       border: 1px solid rgba(70,1,43,0.12);
-      transform: translateY(0) scale(var(--slot-scale, 1));
+      transform: translateY(0) scale(var(--slot-scale));
       transition: transform .25s ease, opacity .25s ease, left .25s ease, top .25s ease;
+      cursor: pointer;
+    }
+
+    .slot-card:hover {
+      transform: translateY(-3px) scale(calc(var(--slot-scale) * 1.02));
     }
 
     .slot-card img {
@@ -527,23 +498,21 @@
       height: 100%;
       object-fit: cover;
       display: block;
-      transform: scale(var(--slot-card-scale, 1));
+      transform: scale(var(--slot-card-scale));
     }
 
     .slot-card.main {
       z-index: 2;
-      inset: auto;
-      top: 16px;
+      top: 14px;
       left: 50%;
-      transform: translateX(-50%) scale(var(--slot-scale, 1));
+      transform: translateX(-50%) scale(var(--slot-scale));
     }
 
     .slot-card.second {
       z-index: 1;
-      inset: auto;
-      top: 34px;
+      top: 28px;
       left: 50%;
-      transform: translateX(calc(-50% + 30px)) translateY(24px) scale(calc(var(--slot-scale, 1) * .82));
+      transform: translateX(calc(-50% + 22px)) translateY(20px) scale(calc(var(--slot-scale) * .84));
       opacity: 0.86;
       filter: saturate(0.95);
     }
@@ -580,7 +549,7 @@
     }
 
     .orga-preview {
-      min-height: 162px;
+      min-height: 180px;
       border: 1px solid rgba(70,1,43,0.14);
       border-radius: 18px;
       background: rgba(255,255,255,0.78);
@@ -588,20 +557,22 @@
       place-items: center;
       padding: 10px;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+      cursor: pointer;
     }
 
     .orga-preview img {
-      width: min(100%, 160px);
+      width: min(100%, 180px);
       height: auto;
-      max-height: 150px;
+      max-height: 160px;
       object-fit: contain;
       border-radius: 12px;
-      transform: scale(var(--orga-preview-scale, 1));
+      transform: scale(var(--orga-preview-scale));
     }
 
     .orga-actions {
       display: grid;
       gap: 10px;
+      align-content: start;
     }
 
     .small-btn {
@@ -610,12 +581,6 @@
       border: 1px solid rgba(70,1,43,0.16);
       padding: 10px 12px;
       box-shadow: 0 7px 16px rgba(0,0,0,0.07);
-    }
-
-    .helper {
-      font-size: .88rem;
-      color: var(--muted);
-      line-height: 1.35;
     }
 
     .overlay-preview {
@@ -640,7 +605,6 @@
       background: rgba(255,255,255,0.95);
       box-shadow: 0 35px 80px rgba(0,0,0,0.4);
       border: 1px solid rgba(70,1,43,0.16);
-      transform: scale(1);
       animation: popIn .16s ease-out;
     }
 
@@ -649,7 +613,7 @@
       height: 100%;
       object-fit: contain;
       display: block;
-      transform: scale(var(--hover-preview-scale, 1));
+      transform: scale(var(--hover-preview-scale));
       transform-origin: center;
       background: #fff;
     }
@@ -659,10 +623,7 @@
       to { opacity: 1; transform: scale(1); }
     }
 
-    .pulsing {
-      animation: pulse 1.4s ease-in-out infinite;
-    }
-
+    .pulsing { animation: pulse 1.4s ease-in-out infinite; }
     @keyframes pulse {
       0%, 100% { box-shadow: 0 0 0 rgba(227,130,41,0.0); }
       50% { box-shadow: 0 0 0 12px rgba(227,130,41,0.08); }
@@ -670,16 +631,16 @@
 
     @media (max-width: 1300px) {
       .board { grid-template-columns: 1fr; }
-      .footer-row { grid-template-columns: 1fr; }
       .cards-row { grid-template-columns: 1fr; }
-      .card-buttons { grid-template-columns: 1fr; }
-      .team-slot { min-height: 240px; }
+      .orga-grid { grid-template-columns: 1fr; }
+      .team-slot-row { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 900px) {
       .app { padding: 12px; gap: 14px; }
       .title-image { width: 96vw; }
       .start-btn { min-width: 100%; }
+      .team-slot-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -707,9 +668,10 @@
           <div class="helper">Team auswählen, damit Bild und Name erscheinen.</div>
         </div>
         <div class="slot-wrap">
-          <div class="slot-title">Karten-Slot Team 1</div>
-          <div class="team-slot" id="slot1">
-            <div class="slot-placeholder">Noch keine Karte gezogen</div>
+          <div class="slot-title">Karten-Slots Team 1</div>
+          <div class="team-slot-row">
+            <div class="team-slot" id="slot1a"><div class="slot-placeholder">Slot 1 leer</div></div>
+            <div class="team-slot" id="slot1b"><div class="slot-placeholder">Slot 2 leer</div></div>
           </div>
         </div>
       </aside>
@@ -725,12 +687,12 @@
           <div class="select-block">
             <div class="label">Phasen-Auswahl</div>
             <select id="matchMode" class="phase-select">
-              <option value="first">Das ist das erste Match beider Teams</option>
-              <option value="loser">Verliererteam aus vergangener Runde auswählen (+1 Karte)</option>
+              <option value="first">Beide Teams spielen ihr erstes Match</option>
+              <option value="loser">Verliererteam auswählen (+1 Karte)</option>
             </select>
           </div>
           <div class="select-block" id="loserWrap" style="display:none;">
-            <div class="label">Verliererteam auswählen</div>
+            <div class="label">Verliererteam</div>
             <select id="loserTeam" class="phase-select">
               <option value="team1">Team 1</option>
               <option value="team2">Team 2</option>
@@ -742,21 +704,15 @@
         <div class="cards-stage subcard">
           <h3>Kartenphase</h3>
           <div class="cards-row" id="cardsRow"></div>
-          <div class="card-buttons">
-            <button id="pickCardBtn" class="card-action-btn" disabled>Karte auswählen</button>
-            <button id="rerollBtn" class="card-action-btn" disabled>Re-Roll</button>
-            <button id="nextStepBtn" class="card-action-btn" disabled>Nächster Schritt</button>
-          </div>
         </div>
 
         <div class="subcard orga-bar" id="orgaBar">
           <h3>Orga-Mode</h3>
-          <div class="helper">Manuell Karten an Team 1 oder Team 2 zuweisen. Vorschau bleibt sichtbar, damit du nicht nur „1, 2, 3“ anstarrst wie ein Minion vor dem Nexus. ^^</div>
           <div class="orga-grid">
             <div class="select-block">
               <div class="label">Karte auswählen</div>
               <select id="orgaCardSelect" class="manual-select"></select>
-              <div class="orga-preview"><img id="orgaPreviewImg" alt="Kartenvorschau" /></div>
+              <div class="orga-preview" id="orgaPreview"><img id="orgaPreviewImg" alt="Kartenvorschau" /></div>
             </div>
             <div class="orga-actions">
               <div class="select-block">
@@ -783,75 +739,47 @@
           <div class="helper">Team auswählen, damit Bild und Name erscheinen.</div>
         </div>
         <div class="slot-wrap">
-          <div class="slot-title">Karten-Slot Team 2</div>
-          <div class="team-slot" id="slot2">
-            <div class="slot-placeholder">Noch keine Karte gezogen</div>
+          <div class="slot-title">Karten-Slots Team 2</div>
+          <div class="team-slot-row">
+            <div class="team-slot" id="slot2a"><div class="slot-placeholder">Slot 1 leer</div></div>
+            <div class="team-slot" id="slot2b"><div class="slot-placeholder">Slot 2 leer</div></div>
           </div>
         </div>
       </aside>
     </section>
-
-    <section class="panel" style="width:min(100%,1600px); margin: 0 auto; padding: 16px;">
-      <div class="versus">
-        <div class="teams" id="versusLine">Team 1 vs Team 2</div>
-      </div>
-    </section>
   </main>
 
   <script>
-    const REPO = {
-      owner: 'NightKnight2947',
-      name: 'league_of_cards'
-    };
-
-    const SCALE = {
-      title: 100,
-      bg: 100,
-      team: 100,
-      miniTeam: 100,
-      card: 100,
-      slot: 100,
-      slotCard: 100,
-      hoverPreview: 100,
-      orgaPreview: 100
-    };
+    const REPO = { owner: 'NightKnight2947', name: 'league_of_cards' };
+    const SCALE = { title: 100, bg: 100, team: 100, card: 100, slot: 100, slotCard: 100, hoverPreview: 100, orgaPreview: 100 };
 
     const state = {
       branch: 'main',
-      assets: {
-        title: null,
-        bg: null,
-        cardAudio: null,
-        teams: [],
-        cards: []
-      },
+      assets: { title: null, bg: null, cardAudio: null, teams: [], cards: [] },
       team1: null,
       team2: null,
       phaseActive: false,
-      phaseFinished: false,
-      currentTurn: 'team1',
-      currentDrawStep: 0,
+      phaseState: 'idle',
+      currentTurn: null,
       currentBatch: [],
-      rerollUsed: [false, false, false],
       selectedCards: new Set(),
       teamCards: { team1: [], team2: [] },
+      activeCardIndex: 0,
       orgaMode: false,
-      pendingBonusChoice: null,
-      bonusApplied: false,
-      bonusTarget: null,
       hoverTimer: null,
-      currentHoveredImage: null,
-      activeCardIndex: 0
+      overlayVisible: false,
+      chooseModeShown: false,
+      bonusTarget: null,
+      modeChoice: null,
+      cardSound: null
     };
 
     const els = {};
-
     const byId = (id) => document.getElementById(id);
     const basename = (path) => (path || '').split('/').pop();
     const nameWithoutExt = (file) => file.replace(/\.[^.]+$/, '');
     const teamLabelFromFilename = (file) => nameWithoutExt(basename(file)).replace(/^team_/i, '').replace(/_/g, ' ');
     const cardIdFromFilename = (file) => nameWithoutExt(basename(file));
-    const cardUrl = (file) => state.branch ? `https://raw.githubusercontent.com/${REPO.owner}/${REPO.name}/${state.branch}/${encodeURI(file)}` : file;
     const repoUrl = (file) => `https://raw.githubusercontent.com/${REPO.owner}/${REPO.name}/${state.branch}/${encodeURI(file)}`;
 
     function setStatus(text, pulse = false) {
@@ -872,7 +800,6 @@
     function applyScales() {
       document.documentElement.style.setProperty('--title-scale', SCALE.title / 100);
       document.documentElement.style.setProperty('--team-scale', SCALE.team / 100);
-      document.documentElement.style.setProperty('--mini-team-scale', SCALE.miniTeam / 100);
       document.documentElement.style.setProperty('--card-scale', SCALE.card / 100);
       document.documentElement.style.setProperty('--slot-scale', SCALE.slot / 100);
       document.documentElement.style.setProperty('--slot-card-scale', SCALE.slotCard / 100);
@@ -886,17 +813,9 @@
       return await res.json();
     }
 
-    function pathLooksLikeCard(path) {
-      return /(^|\/)\d+\.png$/i.test(path);
-    }
-
-    function pathLooksLikeTeam(path) {
-      return /(^|\/)team_[^/]+\.png$/i.test(path);
-    }
-
-    function sortCards(files) {
-      return files.slice().sort((a, b) => parseInt(cardIdFromFilename(a), 10) - parseInt(cardIdFromFilename(b), 10));
-    }
+    function pathLooksLikeCard(path) { return /(^|\/)\d+\.png$/i.test(path); }
+    function pathLooksLikeTeam(path) { return /(^|\/)team_[^/]+\.png$/i.test(path); }
+    function sortCards(files) { return files.slice().sort((a, b) => parseInt(cardIdFromFilename(a), 10) - parseInt(cardIdFromFilename(b), 10)); }
 
     async function loadAssetsFromRepo() {
       const repoInfo = await fetchJson(`https://api.github.com/repos/${REPO.owner}/${REPO.name}`);
@@ -914,31 +833,274 @@
         title: title ? repoUrl(title) : null,
         bg: bg ? repoUrl(bg) : null,
         cardAudio: audio ? repoUrl(audio) : null,
-        teams: teamFiles.map((file) => ({
-          file,
-          name: teamLabelFromFilename(file),
-          url: repoUrl(file)
-        })),
-        cards: cardFiles.map((file) => ({
-          file,
-          id: cardIdFromFilename(file),
-          url: repoUrl(file)
-        }))
+        teams: teamFiles.map((file) => ({ file, name: teamLabelFromFilename(file), url: repoUrl(file) })),
+        cards: cardFiles.map((file) => ({ file, id: cardIdFromFilename(file), url: repoUrl(file) }))
       };
     }
 
-    function fallbackAssetsMessage() {
-      const missing = [];
-      if (!state.assets.title) missing.push('title.png');
-      if (!state.assets.bg) missing.push('bg.png');
-      if (!state.assets.cardAudio) missing.push('card.mp3');
-      if (!state.assets.teams.length) missing.push('team_*.png');
-      if (!state.assets.cards.length) missing.push('1.png, 2.png, ...');
-      if (missing.length) {
-        setWarning(`Im Repo wurden aktuell keine Assets gefunden oder das Repo ist leer. Erwartet werden: ${missing.join(', ')}.`);
-      } else {
-        setWarning('');
+    function availableCards() {
+      return state.assets.cards.filter((card) => !state.selectedCards.has(card.id));
+    }
+
+    function randomPick(pool, excludeIds = new Set()) {
+      const valid = pool.filter((card) => !excludeIds.has(card.id));
+      if (!valid.length) return null;
+      return valid[Math.floor(Math.random() * valid.length)];
+    }
+
+    function playCardSound() {
+      if (!state.assets.cardAudio) return;
+      const audio = new Audio(state.assets.cardAudio);
+      audio.volume = 0.72;
+      audio.play().catch(() => {});
+    }
+
+    function openPreview(src) {
+      if (!src) return;
+      clearTimeout(state.hoverTimer);
+      els.overlayPreviewImg.src = src;
+      els.overlayPreview.classList.add('active');
+      els.overlayPreview.setAttribute('aria-hidden', 'false');
+      state.overlayVisible = true;
+    }
+
+    function hidePreviewSoon() {
+      clearTimeout(state.hoverTimer);
+      state.hoverTimer = setTimeout(() => {
+        els.overlayPreview.classList.remove('active');
+        els.overlayPreview.setAttribute('aria-hidden', 'true');
+        state.overlayVisible = false;
+      }, 0);
+    }
+
+    function bindPreviewHide() {
+      const hideOnMove = () => { if (state.overlayVisible) hidePreviewSoon(); };
+      window.addEventListener('mousemove', hideOnMove, { passive: true });
+      window.addEventListener('mousedown', hideOnMove, { passive: true });
+      window.addEventListener('touchstart', hideOnMove, { passive: true });
+      window.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePreviewSoon(); });
+    }
+
+    function renderTeamPreview(target, team) {
+      const box = target === 1 ? els.teamPreview1 : els.teamPreview2;
+      if (!team) {
+        box.innerHTML = '<div class="helper">Team auswählen, damit Bild und Name erscheinen.</div>';
+        return;
       }
+      box.innerHTML = `<img src="${team.url}" alt="${team.name}" loading="lazy" /><div class="team-name">${team.name}</div>`;
+      const img = box.querySelector('img');
+      img.style.setProperty('--team-scale', `${SCALE.team / 100}`);
+    }
+
+    function renderTeamSlots() {
+      const renderSlot = (slotEl, card, label) => {
+        slotEl.innerHTML = '';
+        slotEl.classList.toggle('filled', !!card);
+        if (!card) {
+          slotEl.innerHTML = '';
+          return;
+        }
+        const main = document.createElement('div');
+        main.className = 'slot-card main';
+        main.innerHTML = `<img src="${card.url}" alt="${card.id}" loading="lazy" />`;
+        main.addEventListener('dblclick', () => openPreview(card.url));
+        slotEl.appendChild(main);
+        const badge = document.createElement('div');
+        badge.className = 'slot-badge';
+        badge.textContent = label;
+        slotEl.appendChild(badge);
+      };
+
+      renderSlot(els.slot1a, state.teamCards.team1[0] || null, '1');
+      renderSlot(els.slot1b, state.teamCards.team1[1] || null, '2');
+      renderSlot(els.slot2a, state.teamCards.team2[0] || null, '1');
+      renderSlot(els.slot2b, state.teamCards.team2[1] || null, '2');
+    }
+
+    function renderTeamHighlights() {
+      els.teamPanel1.classList.toggle('active-turn', state.phaseActive && state.currentTurn === 'team1');
+      els.teamPanel2.classList.toggle('active-turn', state.phaseActive && state.currentTurn === 'team2');
+    }
+
+    function renderCurrentCards() {
+      els.cardsRow.innerHTML = '';
+      if (!state.currentBatch.length) return;
+
+      state.currentBatch.forEach((card, idx) => {
+        const slot = document.createElement('div');
+        slot.className = 'card-slot';
+        slot.innerHTML = `
+          <div class="card-shell ${idx === state.activeCardIndex ? 'active' : ''}" data-idx="${idx}">
+            <img src="${card.url}" alt="Karte ${card.id}" loading="lazy" />
+            <div class="card-overlay"></div>
+            <div class="card-meta">
+              <div class="card-name">
+                <span>Karte ${card.id}</span>
+                <span class="reroll-tag">${card.rerolled ? 'Re-Roll genutzt' : 'bereit'}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn select-btn" data-select="${idx}">Karte auswählen</button>
+            <button class="card-action-btn reroll-btn" data-reroll="${idx}" ${card.rerolled ? 'disabled' : ''}>Re-Roll</button>
+          </div>
+        `;
+        const shell = slot.querySelector('.card-shell');
+        shell.addEventListener('dblclick', () => openPreview(card.url));
+        shell.addEventListener('click', () => { state.activeCardIndex = idx; highlightCurrentCard(); });
+        slot.querySelector('.select-btn').addEventListener('click', () => selectCurrentCard(idx));
+        slot.querySelector('.reroll-btn').addEventListener('click', () => rerollCard(idx));
+        els.cardsRow.appendChild(slot);
+      });
+    }
+
+    function highlightCurrentCard() {
+      els.cardsRow.querySelectorAll('.card-shell').forEach((shell, idx) => shell.classList.toggle('active', idx === state.activeCardIndex));
+    }
+
+    function assignCardToTeam(teamKey, card) {
+      const slots = state.teamCards[teamKey];
+      const idx = slots.length < 2 ? slots.length : -1;
+      if (idx === -1) return false;
+      slots[idx] = card;
+      state.selectedCards.add(card.id);
+      renderTeamSlots();
+      playCardSound();
+      return true;
+    }
+
+    function drawTriple() {
+      const pool = availableCards();
+      if (pool.length < 3) {
+        setStatus('Nicht genug Karten im Pot für 3 neue Karten.', true);
+        state.currentBatch = [];
+        renderCurrentCards();
+        return false;
+      }
+      const next = [];
+      const used = new Set();
+      while (next.length < 3) {
+        const pick = randomPick(pool, used);
+        if (!pick) break;
+        used.add(pick.id);
+        next.push({ ...pick, rerolled: false });
+      }
+      state.currentBatch = next;
+      state.activeCardIndex = 0;
+      renderCurrentCards();
+      return true;
+    }
+
+    function beginTurn(teamKey, message) {
+      state.currentTurn = teamKey;
+      renderTeamHighlights();
+      setStatus(message, true);
+      drawTriple();
+    }
+
+    function showModeSelection() {
+      state.chooseModeShown = true;
+      state.currentTurn = null;
+      renderTeamHighlights();
+      els.phaseControls.classList.add('active');
+      updatePhaseUi();
+      setStatus('Beide Teams haben ihre erste Karte. Bitte Modus wählen.', true);
+    }
+
+    function finishPhase(text) {
+      state.phaseActive = false;
+      state.currentTurn = null;
+      state.currentBatch = [];
+      state.chooseModeShown = false;
+      state.bonusTarget = null;
+      renderCurrentCards();
+      renderTeamHighlights();
+      els.phaseControls.classList.remove('active');
+      setStatus(text || 'Card Phase abgeschlossen. Restart bereit.');
+    }
+
+    function selectCurrentCard(index) {
+      if (!state.phaseActive || !state.currentBatch[index] || !state.currentTurn) return;
+      const card = state.currentBatch[index];
+      const teamKey = state.currentTurn;
+      if (!assignCardToTeam(teamKey, card)) {
+        setStatus(`${teamKey === 'team1' ? 'Team 1' : 'Team 2'} hat bereits beide Slots voll.`, true);
+        return;
+      }
+      state.currentBatch = [];
+      renderCurrentCards();
+      renderTeamSlots();
+
+      if (!state.chooseModeShown) {
+        if (state.phaseState === 'base1') {
+          state.phaseState = 'base2';
+          beginTurn('team2', 'Team 2 ist am Zug.');
+          return;
+        }
+
+        if (state.phaseState === 'base2') {
+          state.phaseState = 'choose';
+          showModeSelection();
+          return;
+        }
+
+        if (state.phaseState === 'first_second1') {
+          state.phaseState = 'first_second2';
+          beginTurn('team2', 'Team 2 zieht die zweite Karte.');
+          return;
+        }
+
+        if (state.phaseState === 'first_second2') {
+          finishPhase('Beide Teams haben ihre zweite Karte. Card Phase abgeschlossen.');
+          return;
+        }
+
+        if (state.phaseState === 'bonus') {
+          finishPhase('Bonuskarte vergeben. Card Phase abgeschlossen.');
+          return;
+        }
+      }
+    }
+
+    function rerollCard(index) {
+      if (!state.phaseActive || !state.currentBatch[index] || state.currentBatch[index].rerolled) return;
+      const exclude = new Set(state.currentBatch.map((c) => c.id));
+      const replacement = randomPick(availableCards(), exclude);
+      if (!replacement) {
+        setStatus('Keine Karte für Re-Roll verfügbar.', true);
+        return;
+      }
+      state.currentBatch[index] = { ...replacement, rerolled: true };
+      renderCurrentCards();
+      setStatus('Re-Roll ausgeführt.', true);
+    }
+
+    function confirmModeSelection() {
+      if (!state.phaseActive) return;
+      const mode = els.matchMode.value;
+      state.chooseModeShown = false;
+      els.phaseControls.classList.remove('active');
+
+      if (mode === 'first') {
+        state.phaseState = 'first_second1';
+        state.currentTurn = 'team1';
+        beginTurn('team1', 'Beide Teams spielen ihr erstes Match. Team 1 zieht die zweite Karte.');
+        return;
+      }
+
+      state.phaseState = 'bonus';
+      state.bonusTarget = els.loserTeam.value;
+      state.currentTurn = state.bonusTarget;
+      beginTurn(state.bonusTarget, `${state.bonusTarget === 'team1' ? 'Team 1' : 'Team 2'} bekommt die Bonuskarte.`);
+    }
+
+    function syncTeamSelection() {
+      const t1Idx = parseInt(els.teamSelect1.value, 10);
+      const t2Idx = parseInt(els.teamSelect2.value, 10);
+      state.team1 = Number.isInteger(t1Idx) ? state.assets.teams[t1Idx] : null;
+      state.team2 = Number.isInteger(t2Idx) ? state.assets.teams[t2Idx] : null;
+      renderTeamPreview(1, state.team1);
+      renderTeamPreview(2, state.team2);
     }
 
     function buildTeamOptions() {
@@ -959,307 +1121,6 @@
       }
     }
 
-    function renderTeamPreview(target, team) {
-      const box = target === 1 ? els.teamPreview1 : els.teamPreview2;
-      if (!team) {
-        box.innerHTML = '<div class="helper">Team auswählen, damit Bild und Name erscheinen.</div>';
-        return;
-      }
-      box.innerHTML = `
-        <img src="${team.url}" alt="${team.name}" loading="lazy" />
-        <div class="team-name">${team.name}</div>
-      `;
-      const img = box.querySelector('img');
-      img.style.setProperty('--team-scale', `${SCALE.team / 100}`);
-    }
-
-    function syncTeamSelection() {
-      const t1Idx = parseInt(els.teamSelect1.value, 10);
-      const t2Idx = parseInt(els.teamSelect2.value, 10);
-      state.team1 = Number.isInteger(t1Idx) ? state.assets.teams[t1Idx] : null;
-      state.team2 = Number.isInteger(t2Idx) ? state.assets.teams[t2Idx] : null;
-      renderTeamPreview(1, state.team1);
-      renderTeamPreview(2, state.team2);
-      renderVersusLine();
-    }
-
-    function renderVersusLine() {
-      const left = state.team1 ? `<span class="team-mini"><img src="${state.team1.url}" alt="${state.team1.name}" /><span>${state.team1.name}</span></span>` : '<span class="team-mini"><span>Team 1</span></span>';
-      const right = state.team2 ? `<span class="team-mini"><img src="${state.team2.url}" alt="${state.team2.name}" /><span>${state.team2.name}</span></span>` : '<span class="team-mini"><span>Team 2</span></span>';
-      els.versusLine.innerHTML = `${left} <span style="font-weight:900;color:var(--title);">VS.</span> ${right}`;
-    }
-
-    function clearSlots() {
-      state.teamCards.team1 = [];
-      state.teamCards.team2 = [];
-      renderSlots();
-    }
-
-    function renderSlots() {
-      renderSlot(byId('slot1'), state.teamCards.team1, state.team1?.name || 'Team 1');
-      renderSlot(byId('slot2'), state.teamCards.team2, state.team2?.name || 'Team 2');
-    }
-
-    function renderSlot(slotEl, cards, teamName) {
-      slotEl.innerHTML = '';
-      slotEl.classList.toggle('filled', cards.length > 0);
-      if (!cards.length) {
-        slotEl.innerHTML = '<div class="slot-placeholder">Noch keine Karte gezogen</div>';
-        return;
-      }
-      const main = document.createElement('div');
-      main.className = 'slot-card main';
-      main.innerHTML = `<img src="${cards[cards.length - 1].url}" alt="${cards[cards.length - 1].id}" />`;
-      slotEl.appendChild(main);
-
-      if (cards.length > 1) {
-        const second = document.createElement('div');
-        second.className = 'slot-card second';
-        second.innerHTML = `<img src="${cards[cards.length - 2].url}" alt="${cards[cards.length - 2].id}" />`;
-        slotEl.appendChild(second);
-      }
-
-      const badge = document.createElement('div');
-      badge.className = 'slot-badge';
-      badge.textContent = `${teamName} • ${cards.length}`;
-      slotEl.appendChild(badge);
-    }
-
-    function availableCards() {
-      return state.assets.cards.filter((card) => !state.selectedCards.has(card.id));
-    }
-
-    function randomPick(pool, excludeIds = new Set()) {
-      const valid = pool.filter((card) => !excludeIds.has(card.id));
-      if (!valid.length) return null;
-      return valid[Math.floor(Math.random() * valid.length)];
-    }
-
-    function drawTriple() {
-      const pool = availableCards();
-      if (pool.length < 3) {
-        setStatus('Nicht genug Karten im Pot für 3 neue Karten.', true);
-        return false;
-      }
-      const next = [];
-      const used = new Set();
-      while (next.length < 3) {
-        const pick = randomPick(pool, used);
-        if (!pick) break;
-        used.add(pick.id);
-        next.push({ ...pick, rerolled: false });
-      }
-      state.currentBatch = next;
-      state.rerollUsed = [false, false, false];
-      renderCurrentCards();
-      updateCardButtons(true);
-      return true;
-    }
-
-    function renderCurrentCards() {
-      els.cardsRow.innerHTML = '';
-      if (state.activeCardIndex >= state.currentBatch.length) state.activeCardIndex = 0;
-      if (!state.currentBatch.length) {
-        for (let i = 0; i < 3; i++) {
-          const empty = document.createElement('div');
-          empty.className = 'card-shell empty';
-          empty.textContent = 'Keine Karten aktiv';
-          els.cardsRow.appendChild(empty);
-        }
-        return;
-      }
-
-      state.currentBatch.forEach((card, idx) => {
-        const shell = document.createElement('div');
-        shell.className = 'card-shell' + (idx === state.activeCardIndex ? ' active' : '');
-        shell.dataset.idx = String(idx);
-        shell.innerHTML = `
-          <img src="${card.url}" alt="Karte ${card.id}" loading="lazy" />
-          <div class="card-overlay"></div>
-          <div class="card-meta">
-            <div class="card-name">
-              <span>Karte ${card.id}</span>
-              <span class="reroll-tag">${state.rerollUsed[idx] ? 'Re-Roll genutzt' : 'bereit'}</span>
-            </div>
-          </div>
-        `;
-        shell.addEventListener('mouseenter', () => {
-          state.activeCardIndex = idx;
-          renderCurrentCards();
-          showHoverPreview(card.url);
-        });
-        shell.addEventListener('click', () => {
-          state.activeCardIndex = idx;
-          renderCurrentCards();
-          consumeCurrentCard(idx);
-        });
-        shell.addEventListener('mouseleave', hideHoverPreview);
-        els.cardsRow.appendChild(shell);
-      });
-    }
-
-    function updateCardButtons(enabled) {
-      els.pickCardBtn.disabled = !enabled || !state.phaseActive || !state.currentBatch.length;
-      els.rerollBtn.disabled = !enabled || !state.phaseActive || !state.currentBatch.length || state.rerollUsed.every(Boolean);
-      els.nextStepBtn.disabled = !state.phaseActive;
-    }
-
-    function updateCurrentButtonsState() {
-      updateCardButtons(state.phaseActive && state.currentBatch.length > 0);
-      els.rerollBtn.textContent = state.rerollUsed.every(Boolean) ? 'Re-Roll verbraucht' : 'Re-Roll';
-    }
-
-    function playCardSound() {
-      const audioSrc = state.assets.cardAudio;
-      if (!audioSrc) return;
-      const audio = new Audio(audioSrc);
-      audio.volume = 0.72;
-      audio.play().catch(() => {});
-    }
-
-    function addSelectedCard(teamKey, card) {
-      state.selectedCards.add(card.id);
-      state.teamCards[teamKey].push(card);
-      renderSlots();
-      playCardSound();
-    }
-
-    function currentTurnLabel() {
-      return state.currentTurn === 'team1' ? 'Team 1 ist am Zug' : 'Team 2 ist am Zug';
-    }
-
-    function beginPhase() {
-      state.phaseActive = true;
-      state.phaseFinished = false;
-      state.currentTurn = 'team1';
-      state.currentDrawStep = 0;
-      state.pendingBonusChoice = null;
-      state.bonusApplied = false;
-      state.bonusTarget = null;
-      state.selectedCards = new Set();
-      clearSlots();
-      els.phaseControls.classList.remove('active');
-      els.orgaBar.classList.remove('active');
-      els.startPhaseBtn.textContent = 'Restart Card Phase';
-      els.startPhaseBtn.disabled = false;
-      setStatus('Kartenphase begonnen. Team 1 darf starten.', true);
-      if (!drawTriple()) {
-        state.phaseActive = false;
-        return;
-      }
-    }
-
-    function finishPhase(message) {
-      state.phaseActive = false;
-      state.phaseFinished = true;
-      state.currentBatch = [];
-      renderCurrentCards();
-      updateCurrentButtonsState();
-      els.startPhaseBtn.textContent = 'Restart Card Phase';
-      setStatus(message || 'Card Phase abgeschlossen. Restart bereit.');
-    }
-
-    function consumeCurrentCard(selectionIndex) {
-      if (!state.phaseActive || !state.currentBatch[selectionIndex]) return;
-      const card = state.currentBatch[selectionIndex];
-      const teamKey = state.currentTurn;
-      addSelectedCard(teamKey, card);
-      state.currentBatch = [];
-      state.rerollUsed = [false, false, false];
-      renderCurrentCards();
-      updateCurrentButtonsState();
-      state.currentDrawStep += 1;
-
-      if (state.bonusApplied && state.currentDrawStep >= 3) {
-        finishPhase('Bonuskarte vergeben. Card Phase abgeschlossen.');
-        return;
-      }
-
-      if (state.currentDrawStep === 1) {
-        state.currentTurn = 'team2';
-        setStatus('Team 2 ist am Zug.');
-        return;
-      }
-
-      if (state.currentDrawStep === 2) {
-        els.phaseControls.classList.add('active');
-        setStatus('Beide Teams haben ihre Basis-Karte. Jetzt die Match-Auswahl treffen.');
-        updatePhaseModeUi();
-        return;
-      }
-    }
-
-    function rerollCard(index) {
-      if (!state.phaseActive || !state.currentBatch[index] || state.rerollUsed[index]) return;
-      const exclude = new Set(state.currentBatch.map((c) => c.id));
-      const pool = availableCards();
-      const replacement = randomPick(pool, exclude);
-      if (!replacement) {
-        setStatus('Keine Karte für Re-Roll verfügbar.', true);
-        return;
-      }
-      state.currentBatch[index] = { ...replacement, rerolled: true };
-      state.rerollUsed[index] = true;
-      state.activeCardIndex = index;
-      renderCurrentCards();
-      updateCurrentButtonsState();
-      setStatus('Re-Roll ausgeführt. Jetzt Karte auswählen oder weitere Slots ansehen.');
-    }
-
-    function updatePhaseModeUi() {
-      const mode = els.matchMode.value;
-      els.loserWrap.style.display = mode === 'loser' ? 'grid' : 'none';
-      els.nextStepBtn.disabled = !state.phaseActive || state.currentDrawStep < 2;
-      els.confirmModeBtn.textContent = mode === 'loser' ? 'Bonuskarte für Verlierer vergeben' : 'Phase ohne Bonus fortsetzen';
-    }
-
-    function confirmMatchMode() {
-      if (!state.phaseActive) return;
-      const mode = els.matchMode.value;
-      if (mode === 'first') {
-        finishPhase('Das erste Match wurde markiert. Phase abgeschlossen.');
-        return;
-      }
-      const target = els.loserTeam.value;
-      state.bonusTarget = target;
-      state.pendingBonusChoice = target;
-      state.bonusApplied = true;
-      state.currentTurn = target;
-      setStatus(`${target === 'team1' ? 'Team 1' : 'Team 2'} bekommt die Bonuskarte. Neue 3 Karten werden präsentiert.`, true);
-      if (drawTriple()) {
-        els.phaseControls.classList.remove('active');
-      }
-    }
-
-    function nextStepFromButton() {
-      if (!state.phaseActive) return;
-      if (state.currentDrawStep < 2) {
-        setStatus('Erst beide Basis-Karten ziehen. Team 1 beginnt.');
-        return;
-      }
-      if (els.matchMode.value === 'first') {
-        confirmMatchMode();
-      } else {
-        confirmMatchMode();
-      }
-    }
-
-    function showHoverPreview(src) {
-      if (!src) return;
-      clearTimeout(state.hoverTimer);
-      els.overlayPreviewImg.src = src;
-      els.overlayPreview.classList.add('active');
-      els.overlayPreview.setAttribute('aria-hidden', 'false');
-    }
-
-    function hideHoverPreview() {
-      clearTimeout(state.hoverTimer);
-      state.hoverTimer = setTimeout(() => {
-        els.overlayPreview.classList.remove('active');
-        els.overlayPreview.setAttribute('aria-hidden', 'true');
-      }, 80);
-    }
-
     function updateOrgaPreview() {
       const idx = parseInt(els.orgaCardSelect.value, 10);
       const card = state.assets.cards[idx];
@@ -1271,17 +1132,14 @@
       els.orgaPreviewImg.alt = `Karte ${card.id}`;
     }
 
-    function toggleOrgaMode() {
-      state.orgaMode = !state.orgaMode;
-      els.orgaBar.classList.toggle('active', state.orgaMode);
-      if (state.orgaMode) {
-        els.phaseControls.classList.remove('active');
-        els.orgaToggleBtn.textContent = 'Orga-Mode schließen';
-        setStatus('Orga-Mode aktiv. Karten können manuell zugewiesen werden.');
+    function refreshOrgaDropdown() {
+      const available = state.assets.cards.filter((card) => !state.selectedCards.has(card.id));
+      els.orgaCardSelect.innerHTML = available.map((card) => `<option value="${state.assets.cards.indexOf(card)}">${card.id}</option>`).join('');
+      if (available.length) {
+        els.orgaCardSelect.value = String(state.assets.cards.indexOf(available[0]));
         updateOrgaPreview();
       } else {
-        els.orgaToggleBtn.textContent = 'Orga-Mode';
-        setStatus(state.phaseActive ? 'Card Phase läuft weiter.' : 'Orga-Mode beendet.');
+        els.orgaPreviewImg.removeAttribute('src');
       }
     }
 
@@ -1296,56 +1154,116 @@
         setStatus('Diese Karte wurde bereits vergeben.', true);
         return;
       }
-      state.selectedCards.add(card.id);
+      if (state.teamCards[teamKey].length >= 2) {
+        setStatus(`${teamKey === 'team1' ? 'Team 1' : 'Team 2'} hat bereits beide Slots voll.`, true);
+        return;
+      }
       state.teamCards[teamKey].push(card);
-      renderSlots();
+      state.selectedCards.add(card.id);
+      renderTeamSlots();
       playCardSound();
+      refreshOrgaDropdown();
       setStatus(`${card.id} wurde ${teamKey === 'team1' ? 'Team 1' : 'Team 2'} zugewiesen.`);
+    }
+
+    function clearSlots() {
+      state.teamCards = { team1: [], team2: [] };
+      state.selectedCards = new Set();
+      renderTeamSlots();
       refreshOrgaDropdown();
     }
 
-    function refreshOrgaDropdown() {
-      const available = state.assets.cards.filter((card) => !state.selectedCards.has(card.id));
-      els.orgaCardSelect.innerHTML = available.map((card, idx) => `<option value="${state.assets.cards.indexOf(card)}">${card.id}</option>`).join('');
-      if (available.length) {
-        els.orgaCardSelect.value = String(state.assets.cards.indexOf(available[0]));
-        updateOrgaPreview();
+    function renderInitialCards() {
+      els.cardsRow.innerHTML = '';
+    }
+
+    function fallbackAssetsMessage() {
+      const missing = [];
+      if (!state.assets.title) missing.push('title.png');
+      if (!state.assets.bg) missing.push('bg.png');
+      if (!state.assets.cardAudio) missing.push('card.mp3');
+      if (!state.assets.teams.length) missing.push('team_*.png');
+      if (!state.assets.cards.length) missing.push('1.png, 2.png, ...');
+      if (missing.length) {
+        setWarning(`Im Repo wurden aktuell keine Assets gefunden oder das Repo ist leer. Erwartet werden: ${missing.join(', ')}.`);
       } else {
-        els.orgaPreviewImg.removeAttribute('src');
+        setWarning('');
       }
     }
 
-    function resetAll() {
+    function updatePhaseUi() {
+      const mode = els.matchMode.value;
+      els.loserWrap.style.display = mode === 'loser' ? 'grid' : 'none';
+    }
+
+    function resetPhase() {
       state.phaseActive = false;
-      state.phaseFinished = false;
-      state.currentTurn = 'team1';
-      state.currentDrawStep = 0;
+      state.phaseState = 'idle';
+      state.currentTurn = null;
       state.currentBatch = [];
-      state.rerollUsed = [false, false, false];
       state.selectedCards = new Set();
       state.teamCards = { team1: [], team2: [] };
-      state.pendingBonusChoice = null;
-      state.bonusApplied = false;
+      state.activeCardIndex = 0;
+      state.orgaMode = false;
+      state.chooseModeShown = false;
       state.bonusTarget = null;
-      els.phaseControls.classList.remove('active');
+      state.modeChoice = null;
       els.orgaBar.classList.remove('active');
       els.orgaToggleBtn.textContent = 'Orga-Mode';
+      els.phaseControls.classList.remove('active');
       els.startPhaseBtn.textContent = 'Start Card Phase';
-      renderCurrentCards();
-      renderSlots();
-      updateCurrentButtonsState();
+      renderInitialCards();
+      renderTeamSlots();
+      renderTeamHighlights();
       setStatus('Bereit. Teams wählen und Card Phase starten.');
     }
 
-    function initDom() {
+    function bindEvents() {
+      els.teamSelect1.addEventListener('change', syncTeamSelection);
+      els.teamSelect2.addEventListener('change', syncTeamSelection);
+      els.startPhaseBtn.addEventListener('click', () => {
+        resetPhase();
+        state.phaseActive = true;
+        state.phaseState = 'base1';
+        els.startPhaseBtn.textContent = 'Restart Card Phase';
+        beginTurn('team1', 'Kartenphase begonnen. Team 1 ist am Zug.');
+      });
+      els.orgaToggleBtn.addEventListener('click', () => {
+        state.orgaMode = !state.orgaMode;
+        els.orgaBar.classList.toggle('active', state.orgaMode);
+        if (state.orgaMode) {
+          els.orgaToggleBtn.textContent = 'Orga-Mode schließen';
+          setStatus('Orga-Mode aktiv. Karten manuell zuweisen.', true);
+          clearSlots();
+          refreshOrgaDropdown();
+        } else {
+          els.orgaToggleBtn.textContent = 'Orga-Mode';
+          setStatus(state.phaseActive ? 'Card Phase läuft weiter.' : 'Orga-Mode beendet.');
+        }
+      });
+      els.matchMode.addEventListener('change', updatePhaseUi);
+      els.confirmModeBtn.addEventListener('click', confirmModeSelection);
+      els.orgaCardSelect.addEventListener('change', updateOrgaPreview);
+      els.assignCardBtn.addEventListener('click', assignManualCard);
+      els.clearSlotsBtn.addEventListener('click', () => {
+        clearSlots();
+        setStatus('Kartenslots wurden geleert.');
+      });
+    }
+
+    async function init() {
       els.titleImage = byId('titleImage');
       els.assetWarning = byId('assetWarning');
       els.teamSelect1 = byId('teamSelect1');
       els.teamSelect2 = byId('teamSelect2');
       els.teamPreview1 = byId('teamPreview1');
       els.teamPreview2 = byId('teamPreview2');
-      els.slot1 = byId('slot1');
-      els.slot2 = byId('slot2');
+      els.teamPanel1 = byId('teamPanel1');
+      els.teamPanel2 = byId('teamPanel2');
+      els.slot1a = byId('slot1a');
+      els.slot1b = byId('slot1b');
+      els.slot2a = byId('slot2a');
+      els.slot2b = byId('slot2b');
       els.startPhaseBtn = byId('startPhaseBtn');
       els.orgaToggleBtn = byId('orgaToggleBtn');
       els.status = byId('status');
@@ -1355,9 +1273,6 @@
       els.loserTeam = byId('loserTeam');
       els.confirmModeBtn = byId('confirmModeBtn');
       els.cardsRow = byId('cardsRow');
-      els.pickCardBtn = byId('pickCardBtn');
-      els.rerollBtn = byId('rerollBtn');
-      els.nextStepBtn = byId('nextStepBtn');
       els.orgaBar = byId('orgaBar');
       els.orgaCardSelect = byId('orgaCardSelect');
       els.orgaTeamSelect = byId('orgaTeamSelect');
@@ -1366,56 +1281,16 @@
       els.clearSlotsBtn = byId('clearSlotsBtn');
       els.overlayPreview = byId('overlayPreview');
       els.overlayPreviewImg = byId('overlayPreviewImg');
-      els.status = byId('status');
-      els.versusLine = byId('versusLine');
-    }
 
-    function bindEvents() {
-      els.teamSelect1.addEventListener('change', syncTeamSelection);
-      els.teamSelect2.addEventListener('change', syncTeamSelection);
-      els.startPhaseBtn.addEventListener('click', () => {
-        resetAll();
-        beginPhase();
-      });
-      els.orgaToggleBtn.addEventListener('click', toggleOrgaMode);
-      els.matchMode.addEventListener('change', updatePhaseModeUi);
-      els.confirmModeBtn.addEventListener('click', confirmMatchMode);
-      els.nextStepBtn.addEventListener('click', nextStepFromButton);
-      els.pickCardBtn.addEventListener('click', () => {
-        if (!state.phaseActive || !state.currentBatch.length) return;
-        consumeCurrentCard(state.activeCardIndex);
-      });
-      els.rerollBtn.addEventListener('click', () => {
-        if (!state.phaseActive || !state.currentBatch.length) return;
-        rerollCard(state.activeCardIndex);
-      });
-      els.orgaCardSelect.addEventListener('change', updateOrgaPreview);
-      els.assignCardBtn.addEventListener('click', assignManualCard);
-      els.clearSlotsBtn.addEventListener('click', () => {
-        state.teamCards = { team1: [], team2: [] };
-        state.selectedCards = new Set();
-        renderSlots();
-        refreshOrgaDropdown();
-        setStatus('Kartenslots wurden geleert.');
-      });
-      els.overlayPreview.addEventListener('mouseenter', showHoverPreview.bind(null, els.overlayPreviewImg.src));
-      els.overlayPreview.addEventListener('mouseleave', hideHoverPreview);
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') hideHoverPreview();
-      });
-    }
-
-    async function init() {
-      initDom();
       applyScales();
       bindEvents();
+      bindPreviewHide();
 
       try {
         await loadAssetsFromRepo();
       } catch (err) {
         console.warn('Asset-Load fehlgeschlagen:', err);
         state.assets = { title: null, bg: null, cardAudio: null, teams: [], cards: [] };
-        state.branch = 'main';
       }
 
       if (state.assets.title) {
@@ -1425,10 +1300,7 @@
         els.titleImage.style.display = 'none';
       }
 
-      if (state.assets.bg) {
-        document.body.style.setProperty('--bg-image', `url("${state.assets.bg}")`);
-      }
-
+      if (state.assets.bg) document.body.style.setProperty('--bg-image', `url("${state.assets.bg}")`);
       fallbackAssetsMessage();
 
       if (state.assets.teams.length) buildTeamOptions();
@@ -1438,15 +1310,12 @@
       }
 
       if (state.assets.cards.length) buildOrgaOptions();
-      else {
-        els.orgaCardSelect.innerHTML = '<option value="">Keine Karten gefunden</option>';
-      }
+      else els.orgaCardSelect.innerHTML = '<option value="">Keine Karten gefunden</option>';
 
-      renderCurrentCards();
-      renderSlots();
-      updateCurrentButtonsState();
-      updatePhaseModeUi();
-      renderVersusLine();
+      renderTeamSlots();
+      renderInitialCards();
+      updatePhaseUi();
+      renderTeamHighlights();
       setStatus('Bereit. Teams wählen und Card Phase starten.');
 
       if (!state.assets.title && !state.assets.bg && !state.assets.cards.length && !state.assets.teams.length) {
